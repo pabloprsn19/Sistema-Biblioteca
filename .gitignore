@@ -1,0 +1,14 @@
+# Variáveis de ambiente (nunca sobe pro GitHub!)
+.env
+
+# Dependências instaladas localmente
+vendor/
+node_modules/
+
+# Logs e cache
+*.log
+/storage/logs/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
