@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard – BiblioSys</title>
+    <title>Dashboard – Bibliotech</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/dashboard.css">
@@ -21,7 +21,7 @@
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
             </svg>
         </div>
-        <span class="nome-sistema">BiblioSys</span>
+        <span class="nome-sistema">Bibliotech</span>
     </div>
 
     <div class="usuario-sidebar">

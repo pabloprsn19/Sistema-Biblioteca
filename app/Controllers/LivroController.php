@@ -2,54 +2,60 @@
 
 namespace App\Controllers;
 
-// controller do catálogo de livros
-// CRUD básico: listar, ver, criar, editar e remover
+use App\Models\Livro;
 
+// Controller dos livros: recebe as requisições e aciona o Model
 class LivroController
 {
-    // listagem de todos os livros
+    // Exibe a listagem de todos os livros
     public function index()
     {
-        // TODO: buscar livros no banco e passar pra view
-        require __DIR__ . '/../Views/livros/index.php';
+        $model  = new Livro();
+        $livros = $model->listarTodos();
+
+        require __DIR__ . '/../Views/livros/listar.php';
     }
 
-    // detalhes de um livro específico
-    public function show($id)
-    {
-        // TODO: buscar livro pelo id
-        require __DIR__ . '/../Views/livros/show.php';
-    }
-
-    // formulário de cadastro
+    // Exibe o formulário de cadastro
     public function create()
     {
-        require __DIR__ . '/../Views/livros/create.php';
+        $model      = new Livro();
+        $categorias = $model->listarCategorias();
+
+        require __DIR__ . '/../Views/livros/criar.php';
     }
 
-    // salva o livro novo no banco
+    // Recebe o POST do formulário e salva o livro
     public function store()
     {
-        // TODO: validar os dados do formulário
-        // TODO: inserir no banco e redirecionar
-    }
+        // Valida os campos obrigatórios
+        $titulo = trim($_POST['titulo'] ?? '');
+        $autor  = trim($_POST['autor']  ?? '');
+        $isbn   = trim($_POST['isbn']   ?? '');
 
-    // formulário de edição
-    public function edit($id)
-    {
-        // TODO: buscar o livro pelo id antes de exibir o form
-        require __DIR__ . '/../Views/livros/edit.php';
-    }
+        if ($titulo === '' || $autor === '' || $isbn === '') {
+            $_SESSION['erro'] = 'Título, autor e ISBN são obrigatórios.';
+            header('Location: /livros/novo');
+            exit;
+        }
 
-    // atualiza os dados do livro
-    public function update($id)
-    {
-        // TODO: validar e salvar as alterações
-    }
+        // Monta o array com os dados do formulário
+        $dados = [
+            'titulo'           => $titulo,
+            'autor'            => $autor,
+            'isbn'             => $isbn,
+            'editora'          => trim($_POST['editora']        ?? ''),
+            'ano_publicacao'   => (int) ($_POST['ano_publicacao']   ?? 0) ?: null,
+            'categoria_id'     => (int) ($_POST['categoria_id']     ?? 0) ?: null,
+            'total_exemplares' => max(1, (int) ($_POST['total_exemplares'] ?? 1)),
+        ];
 
-    // remove o livro
-    public function destroy($id)
-    {
-        // TODO: verificar se tem empréstimo ativo antes de deletar
+        // Salva no banco e redireciona
+        $model = new Livro();
+        $model->inserir($dados);
+
+        $_SESSION['sucesso'] = 'Livro cadastrado com sucesso!';
+        header('Location: /livros');
+        exit;
     }
 }

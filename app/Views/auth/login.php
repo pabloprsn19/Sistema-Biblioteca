@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login – Sistema de Biblioteca</title>
+    <title>Login – Bibliotech</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/login.css">
@@ -28,7 +28,7 @@
                     <line x1="12" y1="10" x2="16" y2="10"/>
                 </svg>
             </div>
-            <h1>BiblioSys</h1>
+            <h1>Bibliotech</h1>
             <p>Sistema de Gerenciamento de Biblioteca</p>
             <ul>
                 <li><span class="dot"></span> Catálogo digital de livros</li>
@@ -128,7 +128,7 @@
             </form>
         </div>
 
-        <p class="rodape-login">© <?= date('Y') ?> BiblioSys</p>
+        <p class="rodape-login">© <?= date('Y') ?> Bibliotech</p>
     </section>
 
 </main>
