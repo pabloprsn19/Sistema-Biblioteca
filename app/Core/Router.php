@@ -2,10 +2,6 @@
 
 namespace App\Core;
 
-/*
- * Router simples pra mapear URLs pros controllers certos.
- * Suporta parâmetros dinâmicos tipo /livros/{id}.
- */
 class Router
 {
     private $rotas = [];
@@ -22,7 +18,6 @@ class Router
 
     private function registrar($metodo, $uri, $action)
     {
-        // converte {id} em regex de captura
         $pattern = preg_replace('/\{[a-zA-Z_]+\}/', '([^/]+)', $uri);
         $pattern = '#^' . $pattern . '$#';
 
@@ -41,14 +36,13 @@ class Router
 
         foreach ($grupo as $rota) {
             if (preg_match($rota['pattern'], $uri, $matches)) {
-                array_shift($matches); // tira o match completo
+                array_shift($matches);
                 $params = array_map('urldecode', $matches);
                 $this->chamar($rota['action'], $params);
                 return;
             }
         }
 
-        // nenhuma rota encontrada
         http_response_code(404);
         echo '<h1>404 - Página não encontrada</h1>';
     }
@@ -64,7 +58,6 @@ class Router
 
         $controller = new $classe();
 
-        // converte pra int se for número
         $params = array_map(fn($p) => ctype_digit($p) ? (int) $p : $p, $params);
 
         call_user_func_array([$controller, $metodo], $params);

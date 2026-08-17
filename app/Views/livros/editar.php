@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastrar Livro – Sistema Biblioteca</title>
+    <title>Editar Livro – Sistema Biblioteca</title>
 </head>
 <body>
 
@@ -17,7 +17,7 @@
 
 <hr>
 
-<h2>Cadastrar Livro</h2>
+<h2>Editar Livro</h2>
 <a href="/livros">← Voltar à listagem</a>
 
 <hr>
@@ -27,36 +27,36 @@
     <?php unset($_SESSION['erro']); ?>
 <?php endif; ?>
 
-<form method="POST" action="/livros">
+<form method="POST" action="/livros/<?= $livro['id'] ?>/editar">
 
     <p>
         <label>Título *<br>
-            <input type="text" name="titulo" required value="<?= htmlspecialchars($_POST['titulo'] ?? '') ?>">
+            <input type="text" name="titulo" required value="<?= htmlspecialchars($livro['titulo']) ?>">
         </label>
     </p>
 
     <p>
         <label>Autor *<br>
-            <input type="text" name="autor" required value="<?= htmlspecialchars($_POST['autor'] ?? '') ?>">
+            <input type="text" name="autor" required value="<?= htmlspecialchars($livro['autor']) ?>">
         </label>
     </p>
 
     <p>
         <label>ISBN *<br>
-            <input type="text" name="isbn" required value="<?= htmlspecialchars($_POST['isbn'] ?? '') ?>">
+            <input type="text" name="isbn" required value="<?= htmlspecialchars($livro['isbn']) ?>">
         </label>
     </p>
 
     <p>
         <label>Editora<br>
-            <input type="text" name="editora" value="<?= htmlspecialchars($_POST['editora'] ?? '') ?>">
+            <input type="text" name="editora" value="<?= htmlspecialchars($livro['editora'] ?? '') ?>">
         </label>
     </p>
 
     <p>
         <label>Ano de Publicação<br>
             <input type="number" name="ano_publicacao" min="1000" max="<?= date('Y') ?>"
-                   value="<?= htmlspecialchars($_POST['ano_publicacao'] ?? '') ?>">
+                   value="<?= htmlspecialchars($livro['ano_publicacao'] ?? '') ?>">
         </label>
     </p>
 
@@ -66,7 +66,7 @@
                 <option value="">-- Selecione --</option>
                 <?php foreach ($categorias as $cat): ?>
                     <option value="<?= $cat['id'] ?>"
-                        <?= (($_POST['categoria_id'] ?? '') == $cat['id']) ? 'selected' : '' ?>>
+                        <?= ($livro['categoria_id'] == $cat['id']) ? 'selected' : '' ?>>
                         <?= htmlspecialchars($cat['nome']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -77,12 +77,12 @@
     <p>
         <label>Total de Exemplares<br>
             <input type="number" name="total_exemplares" min="1"
-                   value="<?= htmlspecialchars($_POST['total_exemplares'] ?? '1') ?>">
+                   value="<?= htmlspecialchars($livro['total_exemplares'] ?? '1') ?>">
         </label>
     </p>
 
     <p>
-        <button type="submit">Salvar Livro</button>
+        <button type="submit">Salvar Alterações</button>
         <a href="/livros">Cancelar</a>
     </p>
 

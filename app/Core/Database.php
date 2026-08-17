@@ -5,8 +5,6 @@ namespace App\Core;
 use PDO;
 use PDOException;
 
-// Conexão com o banco de dados usando PDO.
-// Padrão Singleton: garante uma única conexão durante toda a requisição.
 class Database
 {
     private static $instancia = null;
@@ -23,7 +21,6 @@ class Database
             $usuario = $_ENV['DB_USER']  ?? 'root';
             $senha   = $_ENV['DB_PASS']  ?? '';
 
-            // Monta o DSN conforme o driver configurado no .env
             if ($driver === 'sqlite') {
                 $dsn     = "sqlite:{$nome}";
                 $usuario = null;
@@ -39,7 +36,6 @@ class Database
                     PDO::ATTR_EMULATE_PREPARES   => false,
                 ]);
 
-                // SQLite exige ativar as foreign keys manualmente
                 if ($driver === 'sqlite') {
                     self::$instancia->exec('PRAGMA foreign_keys = ON;');
                 }

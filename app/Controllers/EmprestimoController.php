@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-// tudo que envolve empréstimos e devoluções fica aqui
+// tudo que envolve empréstimos e devoluções 
 
 class EmprestimoController
 {
@@ -13,10 +13,21 @@ class EmprestimoController
         require __DIR__ . '/../Views/emprestimos/index.php';
     }
 
-    // lista os empréstimos do leitor logado
     public function meus()
     {
-        // TODO: pegar o id do usuário da sessão e filtrar
+        if (empty($_SESSION['usuario_id']) || $_SESSION['usuario_perfil'] !== 'leitor') {
+            header('Location: /login');
+            exit;
+        }
+
+        $usuarioId = $_SESSION['usuario_id'];
+
+        $modelUsuario = new \App\Models\Usuario();
+        $leitor = $modelUsuario->buscarPorId($usuarioId);
+
+        $modelEmprestimo = new \App\Models\Emprestimo();
+        $emprestimos = $modelEmprestimo->listarPorUsuario($usuarioId);
+
         require __DIR__ . '/../Views/emprestimos/meus.php';
     }
 
@@ -34,19 +45,76 @@ class EmprestimoController
         require __DIR__ . '/../Views/emprestimos/create.php';
     }
 
-    // salva o empréstimo
-    public function store()
+    public function emprestarDireto($livroId)
     {
-        // TODO: checar se o livro tá disponível
-        // TODO: calcular a data de devolução
-        // TODO: atualizar quantidade disponível do livro
+        if (empty($_SESSION['usuario_id']) || $_SESSION['usuario_perfil'] !== 'leitor') {
+            header('Location: /login');
+            exit;
+        }
+
+        $usuarioId = $_SESSION['usuario_id'];
+
+        $modelUsuario = new \App\Models\Usuario();
+        $leitor = $modelUsuario->buscarPorId($usuarioId);
+
+        // Checar suspensão
+        if (!empty($leitor['suspenso_ate']) && strtotime($leitor['suspenso_ate']) > time()) {
+            $_SESSION['erro'] = 'Sua conta está suspensa. Não é possível pegar livros emprestados.';
+            header('Location: /livros');
+            exit;
+        }
+
+        $modelLivro = new \App\Models\Livro();
+        $livros = $modelLivro->listarTodos();
+        $livro = null;
+        foreach ($livros as $l) {
+            if ($l['id'] == $livroId) {
+                $livro = $l;
+                break;
+            }
+        }
+
+        if (!$livro || $livro['disponiveis'] <= 0) {
+            $_SESSION['erro'] = 'Livro não disponível para empréstimo no momento.';
+            header('Location: /livros');
+            exit;
+        }
+
+        $modelEmprestimo = new \App\Models\Emprestimo();
+        $ok = $modelEmprestimo->emprestar($usuarioId, $livroId);
+
+        if ($ok) {
+            $_SESSION['sucesso'] = 'Livro pego emprestado com sucesso!';
+        } else {
+            $_SESSION['erro'] = 'Erro ao registrar o empréstimo.';
+        }
+
+        header('Location: /livros');
+        exit;
     }
 
-    // registra a devolução
-    public function devolver($id)
+    public function devolverDireto($livroId)
     {
-        // TODO: calcular multa se tiver atrasado
-        // TODO: marcar como devolvido e devolver o livro ao estoque
+        if (empty($_SESSION['usuario_id']) || $_SESSION['usuario_perfil'] !== 'leitor') {
+            header('Location: /login');
+            exit;
+        }
+
+        $usuarioId = $_SESSION['usuario_id'];
+
+        $modelEmprestimo = new \App\Models\Emprestimo();
+        $ok = $modelEmprestimo->devolverPorLivro($livroId, $usuarioId);
+
+        if ($ok) {
+            $_SESSION['sucesso'] = 'Livro devolvido com sucesso!';
+        } else {
+            $_SESSION['erro'] = 'Erro ao registrar a devolução.';
+        }
+
+        // Tenta voltar de onde veio (do Catálogo ou de Meus Empréstimos)
+        $referer = $_SERVER['HTTP_REFERER'] ?? '/livros';
+        header("Location: $referer");
+        exit;
     }
 
     // renova o prazo

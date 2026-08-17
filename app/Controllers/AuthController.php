@@ -2,30 +2,50 @@
 
 namespace App\Controllers;
 
-// controller de autenticação
-// cuida do login e logout dos usuários
+use App\Models\Usuario;
 
 class AuthController
 {
-    // exibe a tela de login
     public function showLogin()
     {
         require __DIR__ . '/../Views/auth/login.php';
     }
 
-    // processa o formulário de login
     public function login()
     {
-        // TODO: validar email e senha com o model de usuário
-        // TODO: iniciar sessão e redirecionar pro dashboard
-        // TODO: tratar erro de credenciais inválidas
+        $email = trim($_POST['email'] ?? '');
+        $senha = $_POST['senha'] ?? '';
+
+        if ($email === '' || $senha === '') {
+            $_SESSION['erro'] = 'E-mail e senha são obrigatórios.';
+            header('Location: /login');
+            exit;
+        }
+
+        $model = new Usuario();
+        $usuario = $model->buscarPorEmail($email);
+
+        if ($usuario && password_verify($senha, $usuario['senha'])) {
+            // Login bem sucedido, popula a sessão
+            $_SESSION['usuario_id']     = $usuario['id'];
+            $_SESSION['usuario_nome']   = $usuario['nome'];
+            $_SESSION['usuario_perfil'] = $usuario['perfil'];
+
+            // Redireciona para o dashboard
+            header('Location: /');
+            exit;
+        }
+
+        // Credenciais inválidas
+        $_SESSION['erro'] = 'E-mail ou senha incorretos.';
+        header('Location: /login');
+        exit;
     }
 
-    // encerra a sessão do usuário
     public function logout()
     {
-        // TODO: destruir a sessão e mandar pro login
         session_destroy();
         header('Location: /login');
+        exit;
     }
 }
