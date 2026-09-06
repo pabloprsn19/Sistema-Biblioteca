@@ -34,7 +34,7 @@ class AuthController
             $_SESSION['usuario_nome']   = $usuario['nome'];
             $_SESSION['usuario_perfil'] = $usuario['perfil'];
 
-            // Redireciona para o dashboard
+            // Redireciona para Início
             header('Location: /');
             exit;
         }

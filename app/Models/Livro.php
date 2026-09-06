@@ -82,9 +82,23 @@ class Livro
         ]);
     }
 
+    public function temEmprestimosAtivos(int $id): bool
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM emprestimos WHERE livro_id = :id AND status = 'ativo'");
+        $stmt->execute([':id' => $id]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
     public function excluir(int $id): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM livros WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
+        try {
+            $stmtEmp = $this->db->prepare("DELETE FROM emprestimos WHERE livro_id = :id");
+            $stmtEmp->execute([':id' => $id]);
+
+            $stmt = $this->db->prepare("DELETE FROM livros WHERE id = :id");
+            return $stmt->execute([':id' => $id]);
+        } catch (\PDOException $e) {
+            return false;
+        }
     }
 }

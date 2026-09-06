@@ -2,101 +2,113 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Catálogo de Livros – Sistema Biblioteca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Livros — Sistema de Biblioteca</title>
+    <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
+<div class="app-wrapper">
+    <?php include __DIR__ . '/../partials/sidebar.php'; ?>
 
-<h1>Sistema de Gerenciamento de Biblioteca</h1>
+    <div class="main-content">
+        <header class="topbar">
+            <span class="topbar-title">Catálogo de Livros</span>
+            <div class="topbar-actions">
+                <?php if (in_array($_SESSION['usuario_perfil'] ?? '', ['atendente', 'administrador'])): ?>
+                    <a href="/livros/novo" class="btn btn-primary btn-sm" id="btn-novo-livro">Cadastrar Livro</a>
+                <?php endif; ?>
+            </div>
+        </header>
 
-<nav>
-    <a href="/">Página Inicial</a> |
-    <a href="/livros">Catálogo de Livros</a> |
-    <?php if (($_SESSION['usuario_perfil'] ?? '') === 'leitor'): ?>
-        <a href="/meus-emprestimos">Meus Empréstimos</a> |
-    <?php else: ?>
-        <a href="/emprestimos">Empréstimos</a> |
-    <?php endif; ?>
-    <a href="/logout">Sair</a>
-</nav>
+        <main class="page-content">
+            <?php include __DIR__ . '/../partials/flash.php'; ?>
 
-<hr>
-
-<h2>Catálogo de Livros</h2>
-<?php if (isset($_SESSION['usuario_perfil']) && $_SESSION['usuario_perfil'] !== 'leitor'): ?>
-    <a href="/livros/novo">+ Cadastrar novo livro</a>
-<?php endif; ?>
-
-<hr>
-
-<?php if (!empty($_SESSION['sucesso'])): ?>
-    <p style="color:green;"><?= htmlspecialchars($_SESSION['sucesso']) ?></p>
-    <?php unset($_SESSION['sucesso']); ?>
-<?php endif; ?>
-
-<?php if (!empty($_SESSION['erro'])): ?>
-    <p style="color:red;"><?= htmlspecialchars($_SESSION['erro']) ?></p>
-    <?php unset($_SESSION['erro']); ?>
-<?php endif; ?>
-
-<?php if (empty($livros)): ?>
-    <p>Nenhum livro cadastrado ainda.</p>
-<?php else: ?>
-    <table border="1" cellpadding="6" cellspacing="0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>ISBN</th>
-                <th>Editora</th>
-                <th>Ano</th>
-                <th>Categoria</th>
-                <th>Exemplares</th>
-                <th>Disponíveis</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($livros as $livro): ?>
-                <tr>
-                    <td><?= $livro['id'] ?></td>
-                    <td><?= htmlspecialchars($livro['titulo']) ?></td>
-                    <td><?= htmlspecialchars($livro['autor']) ?></td>
-                    <td><?= htmlspecialchars($livro['isbn']) ?></td>
-                    <td><?= htmlspecialchars($livro['editora'] ?: '—') ?></td>
-                    <td><?= $livro['ano_publicacao'] ?: '—' ?></td>
-                    <td><?= htmlspecialchars($livro['categoria']) ?></td>
-                    <td><?= $livro['total_exemplares'] ?></td>
-                    <td><?= $livro['disponiveis'] ?></td>
-                    <td>
-                        <?php if (($_SESSION['usuario_perfil'] ?? '') === 'leitor'): ?>
-                            <?php if (in_array($livro['id'], $meusEmprestimosAtivos ?? [])): ?>
-                                <form method="POST" action="/livros/<?= $livro['id'] ?>/devolver" style="display:inline;">
-                                    <button type="submit" style="background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer;">Devolver</button>
-                                </form>
-                            <?php elseif ($livro['disponiveis'] > 0): ?>
-                                <form method="POST" action="/livros/<?= $livro['id'] ?>/emprestar" style="display:inline;">
-                                    <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer;">Pegar Emprestado</button>
-                                </form>
-                            <?php else: ?>
-                                <button disabled style="background-color: #ccc; border: none; padding: 5px 10px;">Indisponível</button>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Acervo (<?= count($livros) ?> títulos)</span>
+                    <div class="filters-bar">
+                        <input type="text" id="busca-livro" class="form-control" placeholder="Filtrar por título ou autor..." style="max-width:240px;">
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <?php if (empty($livros)): ?>
+                        <div class="empty-state">
+                            <div class="empty-text">Nenhum livro cadastrado</div>
+                            <?php if (in_array($_SESSION['usuario_perfil'] ?? '', ['atendente', 'administrador'])): ?>
+                                <div class="empty-sub"><a href="/livros/novo">Cadastrar o primeiro livro</a></div>
                             <?php endif; ?>
-                        <?php elseif (isset($_SESSION['usuario_perfil'])): ?>
-                            <a href="/livros/<?= $livro['id'] ?>/editar">Editar</a>
-                            &nbsp;|
-                            <form method="POST" action="/livros/<?= $livro['id'] ?>/excluir"
-                                  style="display:inline;"
-                                  onsubmit="return confirm('Tem certeza que deseja excluir este livro?')">
-                                <button type="submit">Excluir</button>
-                            </form>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-    <p><?= count($livros) ?> livro(s) encontrado(s).</p>
-<?php endif; ?>
-
+                        </div>
+                    <?php else: ?>
+                    <table class="table" id="tabela-livros">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Título / Autor</th>
+                                <th>ISBN</th>
+                                <th>Editora</th>
+                                <th>Ano</th>
+                                <th>Categoria</th>
+                                <th style="text-align:center">Exemplares</th>
+                                <th style="text-align:center">Disponíveis</th>
+                                <th style="text-align:right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($livros as $livro): ?>
+                            <tr>
+                                <td class="text-muted text-small"><?= $livro['id'] ?></td>
+                                <td>
+                                    <div class="cell-main"><?= htmlspecialchars($livro['titulo']) ?></div>
+                                    <div class="cell-sub"><?= htmlspecialchars($livro['autor']) ?></div>
+                                </td>
+                                <td class="text-small text-muted"><?= htmlspecialchars($livro['isbn']) ?></td>
+                                <td class="text-small"><?= htmlspecialchars($livro['editora'] ?: '—') ?></td>
+                                <td class="text-small"><?= $livro['ano_publicacao'] ?: '—' ?></td>
+                                <td><span class="badge badge-blue"><?= htmlspecialchars($livro['categoria']) ?></span></td>
+                                <td style="text-align:center"><?= $livro['total_exemplares'] ?></td>
+                                <td style="text-align:center">
+                                    <?php $disp = (int)$livro['disponiveis']; ?>
+                                    <span class="badge <?= $disp > 0 ? 'badge-green' : 'badge-red' ?>">
+                                        <?= $disp ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="cell-actions" style="justify-content:flex-end;">
+                                    <?php if (($_SESSION['usuario_perfil'] ?? '') === 'leitor'): ?>
+                                        <?php if (in_array($livro['id'], $meusEmprestimosAtivos ?? [])): ?>
+                                            <a href="/livros/<?= $livro['id'] ?>/devolver" class="btn btn-outline btn-sm" id="btn-devolver-<?= $livro['id'] ?>">Devolver</a>
+                                        <?php elseif ($disp > 0): ?>
+                                            <a href="/livros/<?= $livro['id'] ?>/emprestar" class="btn btn-success btn-sm" id="btn-emprestar-<?= $livro['id'] ?>">Solicitar Empréstimo</a>
+                                        <?php else: ?>
+                                            <span class="badge badge-gray">Indisponível</span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <a href="/livros/<?= $livro['id'] ?>/editar" class="btn btn-outline btn-sm" id="btn-editar-livro-<?= $livro['id'] ?>">Editar</a>
+                                        <a href="/livros/<?= $livro['id'] ?>/excluir" class="btn btn-danger btn-sm" id="btn-excluir-livro-<?= $livro['id'] ?>">Excluir</a>
+                                    <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <span><?= count($livros) ?> título(s) no acervo</span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+document.getElementById('busca-livro')?.addEventListener('input', function () {
+    const termo = this.value.toLowerCase();
+    document.querySelectorAll('#tabela-livros tbody tr').forEach(tr => {
+        const texto = tr.textContent.toLowerCase();
+        tr.style.display = texto.includes(termo) ? '' : 'none';
+    });
+});
+</script>
 </body>
 </html>

@@ -1,17 +1,36 @@
-# Variáveis de ambiente (nunca sobe pro GitHub!)
+# Ambiente
 .env
 
-# Dependências instaladas localmente
+# Banco SQLite (não versionar o banco local)
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
+
+# Dependências (se usar Composer no futuro)
 vendor/
-node_modules/
 
-# Logs e cache
-*.log
-/storage/logs/
-
-# Arquivos de sistema
+# Sistema operacional
 .DS_Store
 Thumbs.db
 
-# Configurações locais do agente (regras internas do projeto)
-.agents/
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── Apenas local (não enviar ao repositório remoto) ──────────────────────────
+
+# Documentação interna / roteiros de apresentação
+docs/
+
+# Demonstrações (vídeos, capturas de tela, etc.)
+demonstracoes/
+
+# Layouts e mockups de design
+layout/
+
+# Scripts de desenvolvimento local
+start_tunnel.sh
+iniciar.sh

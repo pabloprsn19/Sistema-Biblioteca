@@ -72,6 +72,11 @@ class Router
             header('Location: /');
             exit;
         }
+
+        if ($guard === 'admin' && $perfil !== 'administrador') {
+            header('Location: /');
+            exit;
+        }
     }
 
     private function chamar($action, $params)
