@@ -21,6 +21,11 @@ $porta   = $_ENV['DB_PORT']   ?? '3306';
 $usuario = $_ENV['DB_USER']   ?? 'root';
 $senha   = $_ENV['DB_PASS']   ?? '';
 
+// Resolve caminho relativo do SQLite contra o diretório do setup.php
+if ($driver === 'sqlite' && !str_starts_with($nome, '/')) {
+    $nome = __DIR__ . '/' . $nome;
+}
+
 // Conectar ao banco de dados
 try {
     if ($driver === 'sqlite') {

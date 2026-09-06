@@ -22,6 +22,10 @@ class Database
             $senha   = $_ENV['DB_PASS']  ?? '';
 
             if ($driver === 'sqlite') {
+                // Resolve caminho relativo contra ROOT do projeto
+                if (!str_starts_with($nome, '/') && defined('ROOT')) {
+                    $nome = ROOT . '/' . $nome;
+                }
                 $dsn     = "sqlite:{$nome}";
                 $usuario = null;
                 $senha   = null;
