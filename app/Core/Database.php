@@ -22,10 +22,19 @@ class Database
             $senha   = $_ENV['DB_PASS']  ?? '';
 
             if ($driver === 'sqlite') {
-                // Resolve caminho relativo contra ROOT do projeto
-                if (!str_starts_with($nome, '/') && defined('ROOT')) {
-                    $nome = ROOT . '/' . $nome;
+                // Resolve e normaliza caminho contra ROOT do projeto
+                $nomeRelativo = ltrim($nome, '/');
+                if (str_starts_with($nomeRelativo, 'htdocs/')) {
+                    $nomeRelativo = substr($nomeRelativo, 7);
                 }
+                $baseDir = defined('ROOT') ? ROOT : dirname(__DIR__, 2);
+                $nome = $baseDir . '/' . $nomeRelativo;
+
+                $dir = dirname($nome);
+                if (!is_dir($dir)) {
+                    @mkdir($dir, 0755, true);
+                }
+
                 $dsn     = "sqlite:{$nome}";
                 $usuario = null;
                 $senha   = null;
