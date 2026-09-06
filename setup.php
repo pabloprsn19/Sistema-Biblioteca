@@ -1,8 +1,12 @@
 <?php
 /**
  * setup.php — Inicializa o banco de dados (SQLite ou MySQL)
- * Uso: php setup.php
+ * Uso: php setup.php ou via navegador (https://seu-site.com/setup.php)
  */
+
+if (php_sapi_name() !== 'cli') {
+    header('Content-Type: text/plain; charset=utf-8');
+}
 
 // Carregar .env
 $env = __DIR__ . '/.env';
