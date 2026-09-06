@@ -34,3 +34,6 @@ layout/
 # Scripts de desenvolvimento local
 start_tunnel.sh
 iniciar.sh
+
+# Log do servidor local
+*.log
